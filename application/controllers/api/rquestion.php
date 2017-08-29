@@ -35,6 +35,16 @@ class Rquestion extends API_Controller {
 		$this->response_ok($result);
 	}
 	
+	public function list_actives_get() {
+		$result = $this->question_model->get_actives();
+		
+		if ($result === FALSE) {
+			$this->response_error(404);
+		}
+		
+		$this->response_ok($result);
+	}
+	
 	public function edit_post() {
 		$result = $this->question_model->update(
 				$this->post('id'),
