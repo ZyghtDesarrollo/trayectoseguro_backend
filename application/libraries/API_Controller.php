@@ -41,6 +41,10 @@ abstract class API_Controller extends REST_Controller {
 	}
 	
 	public function get_access_token() {
+
+		if($_SERVER['SERVER_NAME']==='localhost')
+			return (isset(getallheaders()['Authorization']))?getallheaders()['Authorization']:'00xx00';
 		return $_SERVER["HTTP_AUTHORIZATION"];
+	
 	}
 }

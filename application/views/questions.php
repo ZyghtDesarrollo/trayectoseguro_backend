@@ -16,7 +16,6 @@
 		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 	    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
-
 		<style type="text/css">
 			#app {
 				width: 100vw;
@@ -27,6 +26,9 @@
 			}
 			.logout{
 				margin-top: 18px;
+			}
+			.userrol {
+				display: none !important;
 			}
 			ul.navbar-nav > li {
 				display: none;
@@ -40,13 +42,13 @@
 				<div class="container">
 					<ul class="nav navbar-nav">
 						<li id="safety_intelligence"  ><a href="<?php echo base_url('safety_intelligence/'); ?>">Dashboard</a></li> 
-						<li id="companies"><a href="<?php echo base_url('companies/'); ?>">Compañías</a></li> 
-						<li id="users" class="active"><a href="<?php echo base_url('users/'); ?>">Usuarios</a></li>
+						<li id="companies" ><a href="<?php echo base_url('companies/'); ?>">Compañías</a></li> 
+						<li id="users"><a href="<?php echo base_url('users/'); ?>">Usuarios</a></li>
 						<li id="travels"><a href="<?php echo base_url('travels/'); ?>">Trayectos</a></li>
-						<li id="questions"><a href="<?php echo base_url('questions/'); ?>">Preguntas</a></li>
+						<li id="questions" class="active"><a href="<?php echo base_url('questions/'); ?>">Preguntas</a></li>
 					</ul>
-					<span class="pull-right logout"><a href="<?php echo base_url('login/'); ?>" style="text-decoration: none; cursor: pointer;">Cerrar Sesión</a></span>
-				</div>
+					<span class="pull-right logout"><a href="javascript:logout();" style="text-decoration: none; cursor: pointer;">Cerrar Sesión</a></span>
+				</div>	
 			</nav>
 
 			<div class="container" style="margin-top:80px;">
@@ -63,7 +65,7 @@
 					<div class="col-sm-12">
 					<ol class="breadcrumb">
 						<li><a href="#">Home</a></li>
-		                <li class="active">Usuarios</li>
+		                <li class="active">Preguntas</li>
 					</ol>                                  
 				</div>
 				</div>
@@ -73,10 +75,7 @@
 					        <thead>
 					            <tr>
 					                <th>ID</th>
-					                <th>Nombre</th>
-					                <th>Compañía</th>
-					                <th>Código de compañía</th>
-					                <th>Administrador</th>
+					                <th>Pregunta</th>
 					                <th>Estado</th>
 					                <th>Acciones</th>
 					            </tr>
@@ -103,41 +102,11 @@
         			</div>
         			<div class="modal-body">
         				<form id="form-record">
-				         	<div class="form-group" id="grp-name">
-					            <label for="record-name" class="form-control-label">Nombre</label>
-					            <input type="text" class="form-control" id="record-name" name="record-name" maxlength="60">
-								<span class="help-block" id="validator-name" ></span>
-				          
-							</div>
-				          	<div class="form-group"  id="grp-company">
-					            <label for="record-company" class="form-control-label">Compañía</label>
-					            <select class="form-control" id="record-company" name="record-company">
-                                    <option value="-1">Seleccione</option>
-								</select>
-								<span class="help-block" id="validator-company" ></span>
-				          
-				          	</div>
-				          	 <div class="form-group">
-		                    	<label class="control-label">Es administrador?</label>
-		                    	<br>
-								<label class="radio-inline">
-									<input type="radio" name="record-admin" value="1" checked="checked">Si
-								</label>
-								<label class="radio-inline">
-									<input type="radio" name="record-admin" value="0">No
-								</label>
-							</div>
-							<div class="form-group" id="grp-password">
-					            <label for="record-password" class="form-control-label">Contraseña</label>
-					            <input type="password" class="form-control" id="record-password" name="record-password" maxlength="16">
-								<span class="help-block" id="validator-password" ></span>
-				          
-							</div>
-				          	<div class="form-group"  id="grp-password-confirm">
-					            <label for="record-password-confirm" class="form-control-label">Confirmación de contraseña</label>
-					            <input type="password" class="form-control" id="record-password-confirm" name="record-password-confirm" maxlength="16">
-								<span class="help-block" id="validator-password-confirm" ></span>
-				          
+				         	<div class="form-group" id="grp-question">
+					            <label for="record-question" class="form-control-label">Pregunta</label>
+					            <input type="text" class="form-control" id="record-question" name="record-question" maxlength="200">
+								<span class="help-block" id="validator-question" ></span>
+				           
 							</div>
 				          	<input type="hidden" id="record-id">
 				        </form>
@@ -176,62 +145,28 @@
 		
 		<!-- start own script-->
 		<script>
-			var table = '';
-			var companies = [];
-
+			var table;
 			$(document).ready(function() {
-
-				$.ajaxSetup({
-					headers: {
-						'Authorization':JSON.parse(sessionStorage.getItem("user")).access_token
-					}
-				});
 				// User Roles & Menu
 				var user = JSON.parse(sessionStorage.getItem("user"));
-				console.log(user);
 				if (user.username == 'superadmin') {
 					$("#companies").show();
 					$("#users").show();
 					$("#questions").show();
-					$("#travels").show(); 
-				
+					$("#travels").show();
 				} else if (user.admin) {
 					$("#users").show();
 					$("#travels").show();
-				
 				}
 				$("#safety_intelligence").show();
-				//Load companies
-				$.get("api/rcompany/list")
-					.done(function(data) {
-						$.each(data.response, function(index, item){
-							companies.push({"id" : item.id, "name" : item.name});
-							$("#record-company").append('<option value="'+item.id+'">'+item.name+'</option>');
-						});
-				  	})
-				  	.fail(function(e) {
-				    	console.log(e);
-				  	})
-				  	.always(function() {
-				  		//console.log(JSON.stringify(companies));
-				    	//alert( "finished" );
-					});
-
-				endpoint = "api/ruser/list";
-				if (user.company_id) {
-					endpoint += "?company_id=" + user.company_id;
-				}
-
 				table = $('#example').DataTable({
 		    		"select": true,
 			    	"language": {
 					    "url": "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json"
 					},
 				   "ajax": {
-	          			"url": endpoint,
-	          			"type": "GET",
-						"headers" : {'Authorization':JSON.parse(sessionStorage.getItem("user")).access_token}
-						  
+	          			"url": "http://trayectoseguro.azurewebsites.net/index.php/api/rquestion/list",
+	          			"type": "GET"
 	        		},
 	        		"showRefresh": true,
 	            	"sAjaxDataProp" : "response",
@@ -240,20 +175,11 @@
 		            		"data": "id" 
 		            	},
 			            { 	
-			            	"data": "username" 
-			            },
-			            {
-			            	"data": "company"
+			            	"data": "title" 
 			            },
 			            { 
-			            	"data": "code"
+			            	"data": "active"
 			        	},
-			            { 
-			            	"data": "admin"
-			        	},
-			            { 	
-			            	"data": "active",
-			            },
 			            {
 			            	"data": null,
 			                "className": "center",
@@ -264,20 +190,14 @@
 		            ],
 		            
 		            "columnDefs" : [
-		            	{ 	//param admin column - admin
-	        				targets : [4],
-	          					render : function (data, type, row) {
-	             				return data == '1' ? 'Si' : 'No';
-	          				}
-					    },
-	        			{ 	//param active - column state
-	        				targets : [5],
+	        			{ 	//param active
+	        				targets : [2],
 	          					render : function (data, type, row) {
 	             				return data == '1' ? 'Activo' : 'Inactivo';
 	          				}
 					    },
 					    { 	//icons options
-	        				targets : [6],
+	        				targets : [3],
 	          					render : function (data, type, row) {
 	          						var iconSwitch = '&nbsp;&nbsp;<i class="glyphicon glyphicon-off icon-action icon-deactivated" data-action="activate" aria-hidden="true"></i>';
 	          						if(data.active == 1){
@@ -308,23 +228,12 @@
 		 		var row = $(this).closest('tr');
 				var id = row.find('td:eq(0)').text();
 				var name = row.find('td:eq(1)').text();
-				var company_id = row.find('td:eq(3)').text();
-				var isAdmin = row.find('td:eq(4)').text();
-				var state = row.find('td:eq(5)').text();
 				
 				switch (action){
 					case "edit":
 						//set value to form
 						$("#record-id").val(id);
-						$("#record-name").val(name);
-						$("#record-company").val(company_id);
-
-						if(isAdmin === "Si"){
-							$("#form-record input:radio[name='record-admin'][value='1']").prop("checked", true);
-						}else{
-							$("#form-record input:radio[name='record-admin'][value='0']").prop("checked", true);
-						}
-
+						$("#record-question").val(name);
 						$("#title").text(textEdit);
 						btnAction.text(textEdit);
 						btnAction.attr("data-action", action);
@@ -369,10 +278,7 @@
 		    	e.preventDefault();
 		    	var action = $(this).attr("data-action");
 		    	var params = {  
-							"username" :  $("#record-name").val(),
-							"password": $("#record-password").val(),
-							"admin": $("input[name='record-admin']:checked", '#form-record').val(),
-							"company_id": $("#record-company").val()
+							"name" :  $("#record-question").val()
 						};
 				if(action == "edit"){
 					params.id = $("#record-id").val();
@@ -395,63 +301,33 @@
 				switch (action){
 
 					case "create":
-						url = "api/ruser/add";
+						url = "http://trayectoseguro.azurewebsites.net/index.php/api/rquestion/add";
 					break;
 
 					case "edit":
-						url = "api/ruser/edit";
+						url = "http://trayectoseguro.azurewebsites.net/index.php/api/rquestion/edit";
 					break;
 					
 					case "activate":
-						url = "api/ruser/activate";
+						url = "http://trayectoseguro.azurewebsites.net/index.php/api/rquestion/activate";
 					break;
 
 					case "deactivate":
-						url="api/ruser/deactivate";
+						url="http://trayectoseguro.azurewebsites.net/index.php/api/rquestion/deactivate";
 					break;
 				}
-
 				//validator
 				var error = false;
 				if(action == "create" || action == "edit"){
-					if(params.username.length == 0){
-						$('#grp-name').addClass('has-error');
-						$('#validator-name').html('Este campo es obligatorio.');
+					if(params.name.length == 0){
+						$('#grp-question').addClass('has-error');
+						$('#validator-question').html('Este campo es obligatorio.');
 						error = true;
 					}else{
-						$('#grp-name').removeClass('has-error');
-						$('#validator-name').html('');
-					}
-
-					if(params.company_id == -1){
-						$('#grp-company').addClass('has-error');
-						$('#validator-company').html('Este campo es obligatorio.');
-						error = true;
-					}else{
-						$('#grp-company').removeClass('has-error');
-						$('#validator-company').html('');
-					}
-					
-					if(params.password.length < 4){
-						$('#grp-password').addClass('has-error');
-						$('#validator-password').html('Este campo es obligatorio, mínimo 4 caracteres.');
-						error = true;
-					}else{
-						$('#grp-password').removeClass('has-error');
-						$('#validator-password').html('');
-					}
-
-
-					if(params.password != $("#record-password-confirm").val()){
-						$('#grp-password-confirm').addClass('has-error');
-						$('#validator-password-confirm').html('Contraseña y Confirmación deben ser iguales.');
-						error = true;
-					}else{
-						$('#grp-password-confirm').removeClass('has-error');
-						$('#validator-password-confirm').html('');
+						$('#grp-question').removeClass('has-error');
+						$('#validator-question').html('');
 					}
 				}
-
 
 				//Call to API
 				if(!error)
@@ -465,14 +341,14 @@
 					
 				    table.ajax.reload( null, false );
 				  })
-				  .fail(function(error) {
-				    //console.log(error);
+				  .fail(function() {
+				    //alert( "error" );
 				  })
 				  .always(function() {
 				    //alert( "finished" );
 				  });
 			}
-				
+		
 			function logout() {
 				sessionStorage.removeItem("user");
 				window.location.href = '<?php echo base_url('login/'); ?>';

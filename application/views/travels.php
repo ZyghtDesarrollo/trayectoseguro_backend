@@ -39,9 +39,11 @@
 			<nav class="navbar navbar-default navbar-fixed-top">
 				<div class="container">
 					<ul class="nav navbar-nav">
+						<li id="safety_intelligence" ><a href="<?php echo base_url('safety_intelligence/'); ?>">Dashboard</a></li> 
 						<li id="companies"><a href="<?php echo base_url('companies/'); ?>">Compañías</a></li> 
 						<li id="users"><a href="<?php echo base_url('users/'); ?>">Usuarios</a></li>
-						<li id="travels" class="active"><a href="<?php echo base_url('travels/'); ?>">Trayectos</a></li>
+						<li id="travels"  class="active"><a href="<?php echo base_url('travels/'); ?>">Trayectos</a></li>
+						<li id="questions"><a href="<?php echo base_url('questions/'); ?>">Preguntas</a></li>
 					</ul>
 					<span class="pull-right logout"><a href="javascript:logout();" style="text-decoration: none; cursor: pointer;">Cerrar Sesión</a></span>
 				</div>	
@@ -118,6 +120,10 @@
 					            <label for="speed_limit" class="form-control-label">Límite de velocidad</label>
 					            <span id="speed_limit"></span>
 				          	</div>
+							  
+							  <h3>Cuestionario</h3>
+							 
+							  <div id='answer'></div>
         			</div>
         			<div class="modal-footer">
           				<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
@@ -138,12 +144,14 @@
 				if (user.username == 'superadmin') {
 					$("#companies").show();
 					$("#users").show();
+					$("#travels").show();
+					$("#questions").show();
 				} else if (user.admin) {
 					$("#users").show();
 					$("#travels").show();
 				}
-
-				endpoint = "http://trayectoseguro.azurewebsites.net/index.php/api/rtravel/list";
+				$("#safety_intelligence").show();
+				endpoint = "api/rtravel/list";
 				if (user.company_id) {
 					endpoint += "?company_id=" + user.company_id;
 				}
@@ -204,7 +212,7 @@
 						break;
 					case 'detail':
 						$('#title').empty();
-						$.get('http://trayectoseguro.azurewebsites.net/index.php/api/rtravel/list_by_id?travel_id='+id)
+						$.get('api/rtravel/list_by_id?travel_id='+id)
 						.done(function(data) {
 							$('#title').text('ID: '+164 +' Detalle del Trayecto '+data.response.date);
 							$('#duration').text(data.response.duration);
@@ -212,6 +220,27 @@
 							$('#average_speed').text(data.response.average_speed + ' Km/h');
 							$('#max_speed').text(data.response.max_speed + ' Km/h');
 							$('#speed_limit').text(data.response.speed_limit + ' Km/h');
+							data.response.answer.forEach(element => {
+
+								var answer = element.value ? " Si" : " No";
+								
+								$("<div>", {
+									'class': 'form-group'
+								})
+									.append(
+										$('<label>', {
+											'class': 'form-control-label',
+											'text': element.title
+										})
+									)
+									.append(
+										$('<span>', {
+											'text': answer
+										})
+									)
+									.appendTo('#answer')
+							});	
+
 							$('#detail-modal').modal('show');
 					  	})
 					  	.fail(function(e) {

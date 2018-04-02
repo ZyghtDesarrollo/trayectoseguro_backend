@@ -31,6 +31,7 @@ class Travel_model extends Zyght_Model {
 		$travel_id = $this->db->insert_id();
 
 		foreach ($answers as $answer) {
+			
 			$this->answer_model->create($travel_id, $answer->question_id, $answer->value);
 		}
 
@@ -73,6 +74,26 @@ class Travel_model extends Zyght_Model {
 			$this->db->where('u.id', $user_id);
 		}
 
+		$query = $this->db->get();
+
+		return ($query->num_rows() > 0) ? $query->result() : array();
+	}
+
+
+	public function get_ranking_user($company_id = '', $user_id = '') {
+		$this->db->select('username, 100 - sum(speed_violation)as ranking');
+		$this->db->from($this->table ." as t");
+		$this->db->join("Appuser as u", "u.id = t.user_id");
+
+		if ($company_id != '') {
+			$this->db->where('u.company_id', $company_id);
+		}
+
+		if ($user_id != '') {
+			$this->db->where('u.id', $user_id);
+		}
+		$this->db->group_by('username'); 
+		$this->db->order_by("ranking", "desc");
 		$query = $this->db->get();
 
 		return ($query->num_rows() > 0) ? $query->result() : array();

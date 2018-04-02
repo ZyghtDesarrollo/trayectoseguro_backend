@@ -15,6 +15,16 @@ class Ruser extends API_Controller {
 
 	//TODO: Validar usuario unico
 	public function add_post() {
+
+		$access_token = $this->get_access_token();
+
+		$user = $this->user_model->get_loggedin_user($access_token);
+		if ($user === FALSE) {
+			$this->response_error(404, array(
+				"Error en token"
+			));
+		}
+
 		$result = $this->user_model->create(
 			$this->post('username'), 
 			$this->post('password'),
@@ -78,6 +88,17 @@ class Ruser extends API_Controller {
 	}
 
 	public function list_get() {
+
+		$access_token = $this->get_access_token();
+
+		$user = $this->user_model->get_loggedin_user($access_token);
+		if ($user === FALSE) {
+			$this->response_error(404, array(
+				"Error en token"
+			));
+		}
+
+
 		$result = $this->user_model->get_all_with_company($this->get('company_id'));
 
 		if ($result === FALSE) {

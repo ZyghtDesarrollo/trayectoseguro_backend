@@ -76,7 +76,7 @@ class User_model extends Zyght_Model {
 	}
 	
 	public function get_all_with_company($company_id = '') {
-		$this->db->select('u.*, c.name as company');
+		$this->db->select('u.id,u.username, u.admin, c.code, u.active, c.name as company');
 		$this->db->from($this->table ." as u");
 		$this->db->join("Company as c", "c.id = u.company_id");
 		$this->db->where('u.username != ', 'superadmin');
@@ -110,8 +110,8 @@ class User_model extends Zyght_Model {
 			$this->db->where('company.active', 1);
 		} else {
 			// superadmin
-			$this->db->where($this->table .'.username', SUPER_ADMIN_USER);
-			$this->db->where($this->table .'.password', SUPER_ADMIN_PASS);			
+			$this->db->where($this->table .'.username', $username);
+			$this->db->where($this->table .'.password', $password);			
 		}
 
 		$query = $this->db->get();

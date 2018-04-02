@@ -32,6 +32,12 @@
 
 				<div class="row flex-center">
 					<div class="col-md-4">
+
+					<div id="alert" class="alert alert-danger collapse" style="display:none;">
+						<strong>No se pudo iniciar sesion</strong><br>El usuario o contraseña no son válido.
+					</div>
+
+
 						<div class="panel panel-default">
 							<div class="panel-heading">
 						    	<h3 class="panel-title">Autenticación</h3>
@@ -69,7 +75,7 @@
 				e.preventDefault();
 
 				var params = $("#form-login").serialize();
-				var url = "http://trayectoseguro.azurewebsites.net/index.php/api/ruser/login";
+				var url = "api/ruser/login";
 				//Call to API
 				$.post(url, params)
 					.done(function(data) {
@@ -81,13 +87,16 @@
 							window.location.href = "<?php echo base_url('users/'); ?>";
 						}
 					})
-					.fail(function() {
+					.fail(function(error) {
+						
+						$('#alert').show();
 						//alert( "error" );
 					})
 					.always(function() {
 						//alert( "finished" );
 					});
 			});
+
 		</script>
 		<!-- end own script -->
 

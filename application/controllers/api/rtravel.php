@@ -13,9 +13,11 @@ class Rtravel extends API_Controller {
 		$this->load->model('user_model');
 		$this->load->model('travel_model');
 		$this->load->model('travellog_model');
+		$this->load->model('answer_model');
 	}
 
 	public function add_post() {
+
 		$access_token = $this->get_access_token();
 
 		$user = $this->user_model->get_loggedin_user($access_token);
@@ -109,6 +111,7 @@ class Rtravel extends API_Controller {
 		}
 		
 		$result = $this->travel_model->get_travel_by_id($this->get('travel_id'));
+		$result->answer = $this->answer_model->get_answer_by_travel_id($this->get('travel_id'));
 		
 		if ($result === FALSE) {
 			$this->response_error(404);
@@ -116,4 +119,16 @@ class Rtravel extends API_Controller {
 		
 		$this->response_ok($result);
 	}
+
+	public function safety_intelligence_get() {
+		$company_id = $this->get('company_id');
+		$result = $this->travel_model->get_ranking_user($company_id);
+	
+		if ($result === FALSE) {
+			$this->response_error(404);
+		}
+		
+		$this->response_ok($result);
+	}
+
 }

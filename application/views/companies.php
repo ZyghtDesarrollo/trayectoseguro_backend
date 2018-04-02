@@ -41,10 +41,12 @@
 			<nav class="navbar navbar-default navbar-fixed-top">
 				<div class="container">
 					<ul class="nav navbar-nav">
+						<li id="safety_intelligence"  ><a href="<?php echo base_url('safety_intelligence/'); ?>">Dashboard</a></li> 
 						<li id="companies" class="active"><a href="<?php echo base_url('companies/'); ?>">Compañías</a></li> 
 						<li id="users"><a href="<?php echo base_url('users/'); ?>">Usuarios</a></li>
 						<li id="travels"><a href="<?php echo base_url('travels/'); ?>">Trayectos</a></li>
 						<li id="questions"><a href="<?php echo base_url('questions/'); ?>">Preguntas</a></li>
+
 					</ul>
 					<span class="pull-right logout"><a href="javascript:logout();" style="text-decoration: none; cursor: pointer;">Cerrar Sesión</a></span>
 				</div>	
@@ -103,17 +105,20 @@
         			</div>
         			<div class="modal-body">
         				<form id="form-record">
-				         	<div class="form-group">
+				         	<div class="form-group" id="grp-name">
 					            <label for="record-name" class="form-control-label">Nombre</label>
-					            <input type="text" class="form-control" id="record-name" name="record-name">
+								<input type="text" class="form-control" id="record-name" name="record-name" maxlength="60">
+								<span class="help-block" id="validator-name" ></span>
 				          	</div>
-				          	<div class="form-group">
+				          	<div class="form-group" id="grp-code">
 					            <label for="record-code" class="form-control-label">Código</label>
-					            <input type="text" class="form-control" id="record-code" name="record-code">
+								<input type="number" class="form-control" id="record-code" name="record-code">
+								<span class="help-block" id="validator-code" ></span>
 				          	</div>
-				          	<div class="form-group">
+				          	<div class="form-group" id="grp-speed-limit">
 					            <label for="record-speed-limit" class="form-control-label">Límite de velocidad</label>
-					            <input type="number" class="form-control" id="record-speed-limit" name="record-speed-limit">
+								<input type="number" class="form-control" id="record-speed-limit" name="record-speed-limit">
+								<span class="help-block" id='validator-speed-limit' ></span>
 				          	</div>
 				          	<input type="hidden" id="record-id">
 				        </form>
@@ -160,18 +165,20 @@
 					$("#companies").show();
 					$("#users").show();
 					$("#questions").show();
+					$("#travels").show();
+					
 				} else if (user.admin) {
 					$("#users").show();
 					$("#travels").show();
 				}
-
+				$("#safety_intelligence").show();
 				table = $('#example').DataTable({
 		    		"select": true,
 			    	"language": {
 					    "url": "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json"
 					},
 				   "ajax": {
-	          			"url": "http://trayectoseguro.azurewebsites.net/index.php/api/rcompany/list",
+	          			"url": "api/rcompany/list",
 	          			"type": "GET"
 	        		},
 	        		"showRefresh": true,
@@ -320,23 +327,54 @@
 				switch (action){
 
 					case "create":
-						url = "http://trayectoseguro.azurewebsites.net/index.php/api/rcompany/add";
+						url = "api/rcompany/add";
 					break;
 
 					case "edit":
-						url = "http://trayectoseguro.azurewebsites.net/index.php/api/rcompany/edit";
+						url = "api/rcompany/edit";
 					break;
 					
 					case "activate":
-						url = "http://trayectoseguro.azurewebsites.net/index.php/api/rcompany/activate";
+						url = "api/rcompany/activate";
 					break;
 
 					case "deactivate":
-						url="http://trayectoseguro.azurewebsites.net/index.php/api/rcompany/deactivate";
+						url="api/rcompany/deactivate";
 					break;
 				}
+				//validator
+				var error = false;
+				if(action == "create" || action == "edit"){
+					if(params.name.length == 0){
+						$('#grp-name').addClass('has-error');
+						$('#validator-name').html('Este campo es obligatorio.');
+						error = true;
+					}else{
+						$('#grp-name').removeClass('has-error');
+						$('#validator-name').html('');
+					}
 
+					if(params.code.length == 0){
+						$('#grp-code').addClass('has-error');
+						$('#validator-code').html('Este campo es obligatorio.');
+						error = true;
+					}else{
+						$('#grp-code').removeClass('has-error');
+						$('#validator-code').html('');
+					}
+					if(params.speed_limit.length == 0){
+						$('#grp-speed-limit').addClass('has-error');
+						$('#validator-speed-limit').html('Este campo es obligatorio.');
+						error = true;
+					}else{
+						$('#grp-speed-limit').removeClass('has-error');
+						$('#validator-speed-limit').html('');
+					}
+				}
+			
+				
 				//Call to API
+				if(!error)
 				$.post( url, params)  .done(function() {
 					if ($('#form-modal').is(':visible')) {
     					$('#form-modal').modal('hide');
