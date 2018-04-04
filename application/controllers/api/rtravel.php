@@ -83,9 +83,9 @@ class Rtravel extends API_Controller {
 			$this->response_error(404);
 		}
 
-		$csv = 'Latitud,Longitud,Fecha' . "\r\n";
+		$csv = 'Latitud,Longitud,Fecha,Velocidad' . "\r\n";
 		foreach ($logs as $log) {
-			$csv .= $log->latitude . ',' . $log->longitude . ',' . $log->date . "\r\n";	
+			$csv .= $log->latitude . ',' . $log->longitude . ',' . $log->date .',' . $log->speed . "\r\n";	
 		}
 
 		force_download('travel_logs.csv', $csv);

@@ -208,7 +208,7 @@
 
 		        switch (action){
 					case 'download':
-		    			window.location.href = 'http://trayectoseguro.azurewebsites.net/index.php/api/rtravel/download_logs?travel_id='+id;
+		    			window.location.href = 'api/rtravel/download_logs?travel_id='+id;
 						break;
 					case 'detail':
 						$('#title').empty();

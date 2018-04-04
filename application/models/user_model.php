@@ -97,7 +97,8 @@ class User_model extends Zyght_Model {
 			$this->table .'.admin, ' . 
 			$this->table .'.company_id, ' . 
 			$this->table .'.active, ' . 
-			$this->table .'.access_token'
+			$this->table .'.access_token,'.
+			'company.speed_limit'
 		);
 		$this->db->from($this->table);
 		$this->db->join('company', 'company.id = '. $this->table .'.company_id', 'left');

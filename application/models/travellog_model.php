@@ -10,12 +10,13 @@ class Travellog_model extends Zyght_Model {
 		$this->id = 'id';
 	}
 
-	public function create($travel_id, $latitude, $longitude, $date) {
+	public function create($travel_id, $latitude, $longitude, $date, $speed) {
 		$this->db->insert($this->table, array(
 			'travel_id' => $travel_id,
 			'latitude' => $latitude,
 			'longitude' => $longitude,
-			'date' => $date
+			'date' => $date,
+			'speed' => $speed
 		));
 
 		$id = $this->db->insert_id();

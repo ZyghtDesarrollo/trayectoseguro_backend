@@ -36,7 +36,7 @@ class Travel_model extends Zyght_Model {
 		}
 
 		foreach ($travel_logs as $log) {
-			$this->travellog_model->create($travel_id, $log->latitude, $log->longitude, $log->date);
+			$this->travellog_model->create($travel_id, $log->latitude, $log->longitude, $log->date, $log->speed);
 		}
 
 		$this->db->trans_complete();
