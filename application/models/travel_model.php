@@ -3,6 +3,7 @@
 require_once(APPPATH . 'libraries/Zyght_Model.php');
 require_once(APPPATH . 'models/travellog_model.php');
 require_once(APPPATH . 'models/answer_model.php');
+require_once(APPPATH . 'models/phoneusagelogs_model.php');
 
 class Travel_model extends Zyght_Model {
 	public function __construct(){
@@ -13,10 +14,11 @@ class Travel_model extends Zyght_Model {
 
 		$this->load->model('travellog_model');
 		$this->load->model('answer_model');
+		$this->load->model('phoneusagelogs_model');
 	}
 
 	public function create($user, $answers, $travel_logs, $max_speed, 
-			$average_speed, $distance, $duration) {
+			$average_speed, $distance, $duration, $speed_violation,$phone_usage_logs) {
 		$this->db->trans_start();
 
 		$this->db->insert($this->table, array(
@@ -25,7 +27,8 @@ class Travel_model extends Zyght_Model {
 			'max_speed' => $max_speed,
 			'average_speed' => $average_speed,
 			'distance' => $distance,
-			'duration' => $duration
+			'duration' => $duration,
+			'speed_violation' => $speed_violation
 		));
 
 		$travel_id = $this->db->insert_id();
@@ -38,7 +41,9 @@ class Travel_model extends Zyght_Model {
 		foreach ($travel_logs as $log) {
 			$this->travellog_model->create($travel_id, $log->latitude, $log->longitude, $log->date, $log->speed);
 		}
-
+		foreach ($phone_usage_logs as $log) {
+			$this->phoneusagelogs_model->create($travel_id, $log->latitude, $log->longitude, $log->date);
+		}
 		$this->db->trans_complete();
 
 		if ($this->db->trans_status() === FALSE) {
@@ -73,7 +78,7 @@ class Travel_model extends Zyght_Model {
 		if ($user_id != '') {
 			$this->db->where('u.id', $user_id);
 		}
-
+		$this->db->order_by("t.id", "desc");
 		$query = $this->db->get();
 
 		return ($query->num_rows() > 0) ? $query->result() : array();

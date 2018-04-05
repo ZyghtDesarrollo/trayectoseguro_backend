@@ -14,6 +14,8 @@ class Rtravel extends API_Controller {
 		$this->load->model('travel_model');
 		$this->load->model('travellog_model');
 		$this->load->model('answer_model');
+		$this->load->model('phoneusagelogs_model');
+		
 	}
 
 	public function add_post() {
@@ -29,13 +31,16 @@ class Rtravel extends API_Controller {
 
 		$answers = $this->json_decode($this->post('answers'));
 		$travel_logs = $this->json_decode($this->post('travel_logs'));
+		$phone_usage_logs = $this->json_decode($this->post('phone_usage_logs'));
+
 		$max_speed = $this->post('max_speed');
 		$average_speed= $this->post('average_speed');
 		$distance = $this->post('distance');
 		$duration = $this->post('duration');
+		$speed_violation = $this->post('speeding');
 		
 		$travel_id = $this->travel_model->create($user, $answers, $travel_logs,
-				$max_speed, $average_speed, $distance, $duration);
+				$max_speed, $average_speed, $distance, $duration,  $speed_violation,$phone_usage_logs);
 
 		if ($travel_id === FALSE) {
 			$this->response_error(404);
@@ -93,6 +98,27 @@ class Rtravel extends API_Controller {
 		// $this->response_ok($result);
 	}
 
+
+	public function download_phoneusagelogs_get() {
+		$this->load->helper('download');
+
+		$travel_id = $this->get('travel_id');
+
+		$logs = $this->phoneusagelogs_model->get_by_travel_id($travel_id);
+
+		if ($logs === FALSE) {
+			$this->response_error(404);
+		}
+
+		$csv = 'Latitud,Longitud,Fecha' . "\r\n";
+		foreach ($logs as $log) {
+			$csv .= $log->latitude . ',' . $log->longitude . ',' . $log->date . "\r\n";	
+		}
+
+		force_download('phoneusagelogs_logs.csv', $csv);
+
+		// $this->response_ok($result);
+	}
 	public function summary_get() {
 		$travel_id = $this->get('travel_id');
 
@@ -112,6 +138,7 @@ class Rtravel extends API_Controller {
 		
 		$result = $this->travel_model->get_travel_by_id($this->get('travel_id'));
 		$result->answer = $this->answer_model->get_answer_by_travel_id($this->get('travel_id'));
+		$result->usage_phone = $this->phoneusagelogs_model->get_count_usage_phone_by_trave_id($this->get('travel_id'));
 		
 		if ($result === FALSE) {
 			$this->response_error(404);

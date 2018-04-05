@@ -183,7 +183,15 @@
                         title: {
                             display: true,
                             text: 'Ranking de Conductores'
-                        }
+                        },  scales: {
+                                xAxes: [{
+                                    ticks: {
+                                        max: 100,
+                                        min: 0,
+                                        //stepSize: 1
+                                    }
+                                }]
+                            } 
                     }
                 });   
             }

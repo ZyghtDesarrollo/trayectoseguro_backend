@@ -120,6 +120,15 @@
 					            <label for="speed_limit" class="form-control-label">Límite de velocidad</label>
 					            <span id="speed_limit"></span>
 				          	</div>
+							<div class="form-group">
+					            <label for="speed_violation" class="form-control-label">Sobrepasó de velocidad</label>
+					            <span id="speed_violation"></span>
+				          	</div>	 
+							 <div class="form-group">
+					            <label for="usage_phone" class="form-control-label">Uso de teléfono móvil</label>
+					            <span id="usage_phone"></span>
+				          	</div>
+							   
 							  
 							  <h3>Cuestionario</h3>
 							 
@@ -189,8 +198,9 @@
 	        			{ 	//param active
 	        				targets : [3],
 	          					render : function (data, type, row) {
-	             				return '<i class="glyphicon glyphicon-download-alt icon-action" data-action="download" aria-hidden="true"></i>'
-	             				+'&nbsp;&nbsp;<i class="glyphicon glyphicon-eye-open icon-action" data-action="detail" aria-hidden="true" style="color : green"></i>';
+	             				return '<i title="Descargar log del trayecto" class="glyphicon glyphicon-download-alt icon-action" data-action="download" aria-hidden="true"></i>'
+	             				+'&nbsp;&nbsp;<i title="Descargar log Uso del movil" class="glyphicon glyphicon-phone  icon-action" data-action="download-usage" aria-hidden="true" ></i>'
+	             				+'&nbsp;&nbsp;<i title="Ver detalles" class="glyphicon glyphicon-eye-open icon-action" data-action="detail" aria-hidden="true" style="color : green"></i>';
 	          					}
 					    }
 					]
@@ -210,6 +220,9 @@
 					case 'download':
 		    			window.location.href = 'api/rtravel/download_logs?travel_id='+id;
 						break;
+					case 'download-usage':
+		    			window.location.href = 'api/rtravel/download_phoneusagelogs?travel_id='+id;
+						break;	
 					case 'detail':
 						$('#title').empty();
 						$.get('api/rtravel/list_by_id?travel_id='+id)
@@ -220,6 +233,12 @@
 							$('#average_speed').text(data.response.average_speed + ' Km/h');
 							$('#max_speed').text(data.response.max_speed + ' Km/h');
 							$('#speed_limit').text(data.response.speed_limit + ' Km/h');
+							$('#speed_violation').text(data.response.speed_violation);
+							$('#usage_phone').text(data.response.usage_phone.usage_phone);
+						
+						
+							$('#answer').empty();
+
 							data.response.answer.forEach(element => {
 
 								var answer = element.value ? " Si" : " No";
