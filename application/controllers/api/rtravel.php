@@ -19,7 +19,7 @@ class Rtravel extends API_Controller {
 	}
 
 	public function add_post() {
-
+		
 		$access_token = $this->get_access_token();
 
 		$user = $this->user_model->get_loggedin_user($access_token);
@@ -34,20 +34,18 @@ class Rtravel extends API_Controller {
 		$answers = $this->json_decode($this->post('answers'));
 		$travel_logs = $this->json_decode($this->post('travel_logs'));
 		$phone_usage_logs = $this->json_decode($this->post('phone_usage_logs'));
-
+		
 		$max_speed = str_replace(',','.',$this->post('max_speed'));
 		$average_speed= str_replace(',','.',$this->post('average_speed'));
 		$distance = str_replace(',','.',$this->post('distance')) ;
-
 
 		$duration = $this->post('duration');
 		$speed_violation = $this->post('speeding');
 		
 		$travel_id = $this->travel_model->create($user, $answers, $travel_logs,
 				$max_speed, $average_speed, $distance, $duration,  $speed_violation,$phone_usage_logs);
-
-
-		if ($travel_id === FALSE) {
+	
+	if ($travel_id === FALSE) {
 			$this->response_error(404);
 		}
 
@@ -93,17 +91,17 @@ class Rtravel extends API_Controller {
 			$this->response_error(404);
 		}
 
-		$csv = 'Latitud,Longitud,Fecha,Velocidad' . "\r\n";
+		$csv = 'Fecha,Latitud,Longitud,Velocidad' . "\r\n";
 		foreach ($logs as $log) {
-			$csv .= $log->latitude . ',' . $log->longitude . ',' . $log->date .',' . $log->speed . "\r\n";	
+			$csv .= $log->date . ',' .
+                    '"' . number_format($log->latitude,8,',','.') . '"' . ',' .
+                    '"' . number_format($log->longitude,8,',','.') . '"' . ',' .
+                    '"' . number_format($log->speed,2,',','.') . '"' . "\r\n";
 		}
 
 		force_download('travel_logs.csv', $csv);
-
 		// $this->response_ok($result);
 	}
-
-
 	public function download_phoneusagelogs_get() {
 		$this->load->helper('download');
 
@@ -115,9 +113,11 @@ class Rtravel extends API_Controller {
 			$this->response_error(404);
 		}
 
-		$csv = 'Latitud,Longitud,Fecha' . "\r\n";
+		$csv = 'Fecha,Latitud,Longitud' . "\r\n";
 		foreach ($logs as $log) {
-			$csv .= $log->latitude . ',' . $log->longitude . ',' . $log->date . "\r\n";	
+            $csv .= $log->date . ',' .
+                    '"' . number_format($log->latitude,8,',','.') . '"' . ',' .
+                    '"' . number_format($log->longitude,8,',','.') . '"' . "\r\n";
 		}
 
 		force_download('phoneusagelogs_logs.csv', $csv);
@@ -144,7 +144,7 @@ class Rtravel extends API_Controller {
 		$result = $this->travel_model->get_travel_by_id($this->get('travel_id'));
 		$result->answer = $this->answer_model->get_answer_by_travel_id($this->get('travel_id'));
 		$result->usage_phone = $this->phoneusagelogs_model->get_count_usage_phone_by_trave_id($this->get('travel_id'));
-		
+
 		if ($result === FALSE) {
 			$this->response_error(404);
 		}
