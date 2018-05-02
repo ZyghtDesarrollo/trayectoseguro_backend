@@ -86,7 +86,7 @@ class Travel_model extends Zyght_Model {
 
 
 	public function get_ranking_user($company_id = '', $user_id = '') {
-		$this->db->select('username, 100 - sum(speed_violation)as ranking');
+		$this->db->select('username, 100 -(sum(speed_violation)/ count(t.id)) as ranking');
 		$this->db->from($this->table ." as t");
 		$this->db->join("Appuser as u", "u.id = t.user_id");
 
