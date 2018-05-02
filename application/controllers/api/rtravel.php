@@ -28,19 +28,24 @@ class Rtravel extends API_Controller {
 				"Error en token"
 			));
 		}
+		
+	
 
 		$answers = $this->json_decode($this->post('answers'));
 		$travel_logs = $this->json_decode($this->post('travel_logs'));
 		$phone_usage_logs = $this->json_decode($this->post('phone_usage_logs'));
 
-		$max_speed = $this->post('max_speed');
-		$average_speed= $this->post('average_speed');
-		$distance = $this->post('distance');
+		$max_speed = str_replace(',','.',$this->post('max_speed'));
+		$average_speed= str_replace(',','.',$this->post('average_speed'));
+		$distance = str_replace(',','.',$this->post('distance')) ;
+
+
 		$duration = $this->post('duration');
 		$speed_violation = $this->post('speeding');
 		
 		$travel_id = $this->travel_model->create($user, $answers, $travel_logs,
 				$max_speed, $average_speed, $distance, $duration,  $speed_violation,$phone_usage_logs);
+
 
 		if ($travel_id === FALSE) {
 			$this->response_error(404);
